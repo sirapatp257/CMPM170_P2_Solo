@@ -3,7 +3,7 @@ title = "Simon Says";
 description = `
 Memorize the colors,\n
 then click/tap on the\n
-correct area of the screen\n
+correct areas of the screen\n
 to repeat after Simon!
 `;
 
@@ -11,12 +11,12 @@ characters = [];
 
 const width = 200;
 const height = 200;
-// Game is color-based -- sticking with the default theme for consistency
 options = {
-  viewSize: {x: width, y: height}
+  viewSize: {x: width, y: height},
+  theme: "crt"
 };
 
-const colorPool = ["black", "red", "green", "blue", "yellow", "purple"];
+const colorPool = ["light_black", "red", "green", "blue", "yellow", "purple"];
 
 // Use a set to ensure that the colors shown to the player will all be unique
 const randomColors = new Set();
@@ -54,8 +54,8 @@ function startNewRound() {
 }
 
 function drawColors() {
-  const colorRectWidth = width / 2 - 15
-  const colorRectHeight = height / 2 - 15
+  const colorRectWidth = width / 2 - 15;
+  const colorRectHeight = height / 2 - 15;
 
   color(randomColorArray[0]);
   rect(10, 10, colorRectWidth, colorRectHeight);
@@ -76,13 +76,15 @@ function displayPrompt() {
 
   for (let i = 0; i < promptColors.length; ++i) {
     color(i >= roundScore ? promptColors[i] : "transparent");
-    text(`${promptColors[i]} ${i < promptColors.length - 1 ? "then" : ""}`, width / 2 - 35, 30 + 30 * i);
+    text(`${promptColors[i] == "light_black" ? "gray" : promptColors[i]}` +
+        `${i < promptColors.length - 1 ? " then" : ""}`, 
+        width / 2 - 35, 30 + 30 * i);
   }
 }
 
 function tallyRoundScore(colorIndex) {
   if (promptColors[roundScore] == randomColorArray[colorIndex]) {
-    roundScore++;
+    ++roundScore;
   }
   else {
     missed = true;
