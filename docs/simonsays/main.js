@@ -1,13 +1,20 @@
 title = "Simon Says";
 
 description = `
+Memorize the colors,\n
+then click/tap on the\n
+correct area of the screen\n
+to repeat after Simon!
 `;
 
 characters = [];
 
-// Going with default size of 100x100 for the sake of simplicity
+const width = 200;
+const height = 200;
 // Game is color-based -- sticking with the default theme for consistency
-options = {};
+options = {
+  viewSize: {x: width, y: height}
+};
 
 const colorPool = ["black", "red", "green", "blue", "yellow", "purple"];
 
@@ -47,26 +54,29 @@ function startNewRound() {
 }
 
 function drawColors() {
+  const colorRectWidth = width / 2 - 15
+  const colorRectHeight = height / 2 - 15
+
   color(randomColorArray[0]);
-  rect(10, 10, 35, 35);
+  rect(10, 10, colorRectWidth, colorRectHeight);
 
   color(randomColorArray[1]);
-  rect(90, 10, -35, 35);
+  rect(width - 10, 10, -colorRectWidth, colorRectHeight);
 
   color(randomColorArray[2]);
-  rect(10, 90, 35, -35);
+  rect(10, height - 10, colorRectWidth, -colorRectHeight);
 
   color(randomColorArray[3]);
-  rect(90, 90, -35, -35);
+  rect(width - 10, height - 10, -colorRectWidth, -colorRectHeight);
 }
 
 function displayPrompt() {
   color('black');
-  text("Simon says...", 15, 15);
+  text("Simon says...", width / 2 - 35, 15);
 
   for (let i = 0; i < promptColors.length; ++i) {
     color(i >= roundScore ? promptColors[i] : "transparent");
-    text(`${promptColors[i]} ${i < promptColors.length - 1 ? "then" : ""}`, 15, 30 + 15 * i);
+    text(`${promptColors[i]} ${i < promptColors.length - 1 ? "then" : ""}`, width / 2 - 35, 30 + 30 * i);
   }
 }
 
@@ -98,8 +108,8 @@ function update() {
   else if (ticksSinceLastRound < memorizationPeriodTicks + roundTickLimit) {
     displayPrompt();
     if (input.isJustPressed) {
-      if (input.pos.x < 50) {
-        if (input.pos.y < 50) {
+      if (input.pos.x < width / 2) {
+        if (input.pos.y < height / 2) {
           console.log("Pressed on upper-left quadrant!");
           console.log(`Corresponding color: ${randomColorArray[0]}`);
           tallyRoundScore(0);
@@ -111,7 +121,7 @@ function update() {
         }
       }
       else {
-        if (input.pos.y < 50) {
+        if (input.pos.y < height / 2) {
           console.log("Pressed on upper-right quadrant!");
           console.log(`Corresponding color: ${randomColorArray[1]}`);
           tallyRoundScore(1);
