@@ -6,6 +6,7 @@ description = `
 characters = [];
 
 // Going with default size of 100x100 for the sake of simplicity
+// Game is color-based -- sticking with the default theme for consistency
 options = {};
 
 const colorPool = ["black", "red", "green", "blue", "yellow", "purple"];
@@ -16,6 +17,7 @@ const randomColors = new Set();
 let randomColorArray = [];
 
 let promptColors = [];
+let missed = false;
 let roundScore = 0;
 
 let ticksSinceLastRound = 0;
@@ -26,19 +28,20 @@ function randomizeColors() {
   randomColors.clear();
   promptColors = [];
   while (randomColors.size < 4) {
-    randomColors.add(colorPool[Math.floor(Math.random() * colorPool.length)]);
+    randomColors.add(colorPool[rndi(0, colorPool.length)]);
   }
   
   randomColorArray = Array.from(randomColors);
 
   while (promptColors.length < 5) {
-    promptColors.push(randomColorArray[Math.floor(Math.random() * randomColorArray.length)]);
+    promptColors.push(randomColorArray[rndi(0, randomColorArray.length)]);
   }
 }
 
 function startNewRound() {
   ticksSinceLastRound = 0;
   roundScore = 0;
+  missed = false;
   randomizeColors();
   drawColors();
 }
@@ -62,9 +65,7 @@ function displayPrompt() {
   text("Simon says...", 15, 15);
 
   for (let i = 0; i < promptColors.length; ++i) {
-    if (i >= roundScore) {
-      color(promptColors[i]);
-    }
+    color(i >= roundScore ? promptColors[i] : "transparent");
     text(`${promptColors[i]} ${i < promptColors.length - 1 ? "then" : ""}`, 15, 30 + 15 * i);
   }
 }
@@ -74,7 +75,7 @@ function tallyRoundScore(colorIndex) {
     roundScore++;
   }
   else {
-    end("WRONG!");
+    missed = true;
   }
 
   if (roundScore >= promptColors.length) {
@@ -88,10 +89,13 @@ function update() {
     // Initial frame here, since ticks == 0 (???)
     startNewRound();
   }
+  else if (missed) {
+    end("WRONG!");
+  }
   else if (ticksSinceLastRound < memorizationPeriodTicks) {
     drawColors();
   }
-  else {
+  else if (ticksSinceLastRound < memorizationPeriodTicks + roundTickLimit) {
     displayPrompt();
     if (input.isJustPressed) {
       if (input.pos.x < 50) {
@@ -120,9 +124,9 @@ function update() {
       }
     }
   }
-
-  ++ticksSinceLastRound;
-  if (ticksSinceLastRound >= memorizationPeriodTicks + roundTickLimit) {
-    end("Gotta go faster!");
+  else {
+    end("TOO SLOW!");
   }
+  
+  ++ticksSinceLastRound;
 }
